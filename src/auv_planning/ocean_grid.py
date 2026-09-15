@@ -74,6 +74,8 @@ class OceanGrid:
             Tuple[float, float]: The real-world location (latitude, longitude) corresponding to the grid coordinates.
         """
         x, y = coordinates
-        # Assuming each grid cell corresponds to a specific latitude and longitude range
-        # Here we just return the grid coordinates as a placeholder for actual lat/lon conversion
-        return float(x), float(y)
+
+        latitude = float(self.latitudes[y])
+        longitude = float(self.longitudes[x])
+
+        return latitude, longitude
