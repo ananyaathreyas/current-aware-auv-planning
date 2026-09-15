@@ -47,4 +47,33 @@ class OceanGrid:
                 continue
             neighbors.append((candidate_x, candidate_y))
         return neighbors
+
+    def get_current_at(self, coordinates: Tuple[int, int]) -> Tuple[float, float]:
+        """
+            Get the current vector (u, v) at a given coordinate in the grid.
     
+        Args:
+            coordinates (Tuple[int, int]): The (x, y) coordinates of the position.
+    
+        Returns:
+            Tuple[float, float]: The current vector (u, v) at the given coordinates.
+        """
+        x, y = coordinates
+        u = self.current_u[y, x]
+        v = self.current_v[y, x]
+        return u, v
+
+    def get_location(self, coordinates: Tuple[int, int]) -> Tuple[float, float]:
+        """
+            Get the real-world location (latitude, longitude) corresponding to the grid coordinates.
+    
+        Args:
+            coordinates (Tuple[int, int]): The (x, y) coordinates of the position in the grid.
+    
+        Returns:
+            Tuple[float, float]: The real-world location (latitude, longitude) corresponding to the grid coordinates.
+        """
+        x, y = coordinates
+        # Assuming each grid cell corresponds to a specific latitude and longitude range
+        # Here we just return the grid coordinates as a placeholder for actual lat/lon conversion
+        return float(x), float(y)
