@@ -8,12 +8,16 @@ class OceanGrid:
             current_u:np.ndarray,
             current_v:np.ndarray,
             traversable:np.ndarray,
+            latitudes: np.ndarray,
+            longitudes: np.ndarray,
     ):
         self.width = width
         self.height = height
         self.current_u = current_u
         self.current_v = current_v
         self.traversable = traversable
+        self.latitudes = latitudes
+        self.longitudes = longitudes
     def get_neighbours(self, coordinates: Tuple[int, int]) -> List[Tuple[int, int]]:
         """
             Get the neighboring coordinates of a given coordinate in a grid.
@@ -59,8 +63,10 @@ class OceanGrid:
             Tuple[float, float]: The current vector (u, v) at the given coordinates.
         """
         x, y = coordinates
-        u = self.current_u[y, x]
-        v = self.current_v[y, x]
+
+        u = float(self.current_u[y, x])
+        v = float(self.current_v[y, x])
+
         return u, v
 
     def get_location(self, coordinates: Tuple[int, int]) -> Tuple[float, float]:
