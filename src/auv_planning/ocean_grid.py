@@ -1,23 +1,23 @@
+"""Represent ocean data as a grid for path-planning algorithms."""
+
 from typing import Tuple, List
 import numpy as np
 class OceanGrid:
     def __init__(
             self,
-            width:int,
-            height:int,
             current_u:np.ndarray,
             current_v:np.ndarray,
             traversable:np.ndarray,
             latitudes: np.ndarray,
             longitudes: np.ndarray,
     ):
-        self.width = width
-        self.height = height
         self.current_u = current_u
         self.current_v = current_v
         self.traversable = traversable
         self.latitudes = latitudes
         self.longitudes = longitudes
+        self.height = len(latitudes)
+        self.width = len(longitudes)
     def get_neighbours(self, coordinates: Tuple[int, int]) -> List[Tuple[int, int]]:
         """
             Get the neighboring coordinates of a given coordinate in a grid.
