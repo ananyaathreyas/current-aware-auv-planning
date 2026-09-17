@@ -142,3 +142,42 @@ def irregular_grid():
         current_v=current_v,
         traversable=traversable,
     )
+
+@pytest.fixture
+def upward_current_field():
+    """Create a grid where an upper route has a helpful eastward current."""
+
+    latitudes = np.array([
+        36.00,
+        36.25,
+        36.50,
+    ])
+
+    longitudes = np.array([
+        -123.00,
+        -122.75,
+        -122.50,
+        -122.25,
+        -122.00,
+    ])
+
+    # u is east/west current velocity.
+    # Give the top row a strong eastward current.
+    current_u = np.array([
+        [0.8, 0.8, 0.8, 0.8, 0.8],
+        [0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0],
+    ])
+
+    # No north/south current.
+    current_v = np.zeros((3, 5))
+
+    traversable = np.ones((3, 5), dtype=bool)
+
+    return OceanGrid(
+        latitudes=latitudes,
+        longitudes=longitudes,
+        current_u=current_u,
+        current_v=current_v,
+        traversable=traversable,
+    )
