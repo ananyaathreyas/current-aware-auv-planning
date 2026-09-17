@@ -7,6 +7,7 @@ from auv_planning.astar import reconstruct_path
 from auv_planning.energy_model import (
     haversine_distance,
     movement_energy,
+    geographic_travel_direction,
 )
 from auv_planning.ocean_grid import OceanGrid
 
@@ -61,17 +62,28 @@ def current_aware_astar(
 
         for neighbour in grid.get_neighbours(current):
 
+            # Average the ocean current across this movement.
             ocean_current = edge_current(
                 grid,
                 current,
                 neighbour,
             )
+
+            # Calculate the real physical distance between the cells.
             distance_m = edge_distance(
                 grid,
                 current,
                 neighbour,
-)
+            )
 
+            # Calculate the real east/north direction of travel.
+            direction = edge_direction(
+                grid,
+                current,
+                neighbour,
+            )
+
+            # Estimate how much propulsion energy this movement requires.
             edge_energy = movement_energy(
                 current=current,
                 neighbour=neighbour,
@@ -79,6 +91,7 @@ def current_aware_astar(
                 distance_m=distance_m,
                 ground_speed=ground_speed,
                 power_coefficient=power_coefficient,
+                travel_direction_vector=direction,
             )
 
             new_cost = cost_so_far[current] + edge_energy
@@ -114,6 +127,29 @@ def edge_distance(
     lon2 = grid.longitudes[x2]
 
     return haversine_distance(
+        lat1,
+        lon1,
+        lat2,
+        lon2,
+    )
+
+def edge_direction(
+    grid: OceanGrid,
+    current: Coordinate,
+    neighbour: Coordinate,
+) -> Vector:
+    """Return the physical east/north direction of travel between two cells."""
+
+    x1, y1 = current
+    x2, y2 = neighbour
+
+    lat1 = grid.latitudes[y1]
+    lon1 = grid.longitudes[x1]
+
+    lat2 = grid.latitudes[y2]
+    lon2 = grid.longitudes[x2]
+
+    return geographic_travel_direction(
         lat1,
         lon1,
         lat2,

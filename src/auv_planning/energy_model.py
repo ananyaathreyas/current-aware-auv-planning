@@ -1,6 +1,4 @@
-"""Estimate AUV propulsion and energy costs in ocean currents.
-    while AUV maintains the same speed through water.
-"""
+"""Estimate AUV propulsion and energy costs while navigating ocean currents."""
 
 
 import math
@@ -23,6 +21,17 @@ def travel_direction(
 
     return dx / distance, dy / distance
 
+def ground_velocity_from_direction(
+    direction: Vector,
+    speed: float,
+) -> Vector:
+    """Scale a unit travel direction to the desired ground speed."""
+
+    direction_x, direction_y = direction
+
+    return direction_x * speed, direction_y * speed
+
+
 def ground_velocity(
     current: Tuple[int, int],
     neighbour: Tuple[int, int],
@@ -30,10 +39,9 @@ def ground_velocity(
 ) -> Vector:
     """Calculate the desired ground velocity for one grid movement."""
 
-    direction_x, direction_y = travel_direction(current, neighbour)
+    direction = travel_direction(current, neighbour)
 
-    return direction_x * speed, direction_y * speed
-
+    return ground_velocity_from_direction(direction, speed)
 def required_propulsion_velocity(
     ground_velocity: Vector,
     current_velocity: Vector,
@@ -76,14 +84,22 @@ def movement_energy(
     distance_m: float,
     ground_speed: float,
     power_coefficient: float,
+    travel_direction_vector: Vector | None = None,
+    
 ) -> float:
     """Estimate propulsion energy required for one grid movement."""
 
     # Determine the AUV's desired velocity over the ground.
-    desired_velocity = ground_velocity(
-        current,
-        neighbour,
-        ground_speed,
+    if travel_direction_vector is None:
+        desired_velocity = ground_velocity(
+            current,
+            neighbour,
+            ground_speed,
+        )
+    else:
+        desired_velocity = ground_velocity_from_direction(
+            travel_direction_vector,
+            ground_speed,
     )
 
     # Determine how much velocity the motors must provide after accounting
@@ -136,3 +152,20 @@ def haversine_distance(
     )
 
     return earth_radius_m * c
+
+def geographic_travel_direction(
+    lat1: float,
+    lon1: float,
+    lat2: float,
+    lon2: float,
+) -> Vector:
+    """Return the physical east/north travel direction between nearby coordinates."""
+
+    mean_lat = math.radians((lat1 + lat2) / 2)
+
+    east = math.radians(lon2 - lon1) * math.cos(mean_lat)
+    north = math.radians(lat2 - lat1)
+
+    magnitude = math.sqrt(east**2 + north**2)
+
+    return east / magnitude, north / magnitude
