@@ -77,6 +77,7 @@ def energy_consumed(
 
     return power * travel_time
 
+
 def movement_energy(
     current: Tuple[int, int],
     neighbour: Tuple[int, int],

@@ -2,6 +2,7 @@
 
 import heapq
 from typing import Dict, List, Optional, Tuple
+import math
 
 from auv_planning.astar import reconstruct_path
 from auv_planning.energy_model import (
@@ -37,6 +38,24 @@ def edge_current(
 
     return average_u, average_v
 
+def maximum_current_speed(grid: OceanGrid) -> float:
+    """Return the strongest valid ocean-current speed in the grid."""
+
+    max_current_speed = 0.0
+
+    for y in range(grid.current_u.shape[0]):
+        for x in range(grid.current_u.shape[1]):
+            if not grid.traversable[y, x]:
+                continue
+
+            u = grid.current_u[y, x]
+            v = grid.current_v[y, x]
+
+            current_speed = math.sqrt(u**2 + v**2)
+            max_current_speed = max(max_current_speed, current_speed)
+
+    return max_current_speed
+
 def current_aware_astar(
     grid: OceanGrid,
     start: Coordinate,
@@ -46,6 +65,7 @@ def current_aware_astar(
 ) -> Optional[List[Coordinate]]:
     """Find a minimum-energy path through an OceanGrid."""
 
+    max_current_speed = maximum_current_speed(grid)
     frontier = []
     heapq.heappush(frontier, (0.0, start))
 
@@ -103,9 +123,21 @@ def current_aware_astar(
                 cost_so_far[neighbour] = new_cost
                 origin[neighbour] = current
 
+                remaining_energy = energy_heuristic(
+                    grid,
+                    neighbour,
+                    goal,
+                    ground_speed,
+                    power_coefficient,
+                    max_current_speed
+
+                )
+
+                priority = new_cost + remaining_energy
+
                 heapq.heappush(
                     frontier,
-                    (new_cost, neighbour),
+                    (priority, neighbour),
                 )
 
     return None
@@ -155,3 +187,41 @@ def edge_direction(
         lat2,
         lon2,
     )
+
+def energy_heuristic(
+    grid: OceanGrid,
+    current: Coordinate,
+    goal: Coordinate,
+    ground_speed: float,
+    power_coefficient: float,
+    max_current_speed: float,
+) -> float:
+    """Return an optimistic lower bound on energy needed to reach the goal."""
+
+    x1, y1 = current
+    x2, y2 = goal
+
+    # Straight-line physical distance to the goal.
+    remaining_distance = haversine_distance(
+        grid.latitudes[y1],
+        grid.longitudes[x1],
+        grid.latitudes[y2],
+        grid.longitudes[x2],
+    )
+
+    # Best case: the strongest current helps perfectly for the whole trip.
+    minimum_propulsion_speed = max(
+        0.0,
+        ground_speed - max_current_speed,
+    )
+
+    minimum_power = (
+        power_coefficient
+        * minimum_propulsion_speed**3
+    )
+
+    minimum_travel_time = (
+        remaining_distance / ground_speed
+    )
+
+    return minimum_power * minimum_travel_time
