@@ -20,6 +20,7 @@ For one simulated route through a regional NASA OSCAR surface-current field off 
 | --- | ---: | ---: |
 | Baseline A* | 417.3 km | 105.3 MJ |
 | Current-aware A* | 653.2 km | 75.0 MJ |
+
 ![Baseline A* and current-aware A* routes over NASA OSCAR surface currents](results/path_comparison.png)
 The current-aware route traveled 56.5% farther while using 28.7% less modeled propulsion energy.
 This demonstrates the tradeoff explored by the project: minimizing distance and minimizing propulsion energy are not always the same objective.
