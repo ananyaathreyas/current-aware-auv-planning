@@ -4,7 +4,7 @@ A path-planning experiment that compares shortest-path routing with current-awar
 
 ## Overview
 
-Traditional path planning minimizes geometric distance. For an underwater vehicle, however, the shortest route may not require the least propulsion energy when ocean currents assist or oppose its motion.
+Traditional path planning minimizes geometric distance i.e euclidean. For an underwater vehicle, however, the shortest route may not require the least propulsion energy when ocean currents assist or oppose its motion.
 
 This project asks:
 
